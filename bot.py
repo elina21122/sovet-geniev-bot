@@ -165,8 +165,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
                 {"role": "system", "content": SYSTEM_PROMPT},
                 *user_histories[user_id]
             ],
-            max_tokens=3000,
-            temperature=0.85,
+            temperature=0.9,
         )
 
         assistant_message = response.choices[0].message.content
