@@ -174,18 +174,17 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Добавляем ответ в историю
         user_histories[user_id].append({"role": "assistant", "content": assistant_message})
 
-        # Разбиваем по смысловым блокам
-        import re
-        sections = re.split(r'\n(?=ВОПРОС НА РАССМОТРЕНИЕ:|ОТКРЫТИЕ:|ВИЗИОНЕР:|ИНВЕСТОР:|ПЕРФЕКЦИОНИСТ:|АНАЛИТИК:|КЛИЕНТ:|СТРАТЕГ:|СИНТЕЗ:|СВОДНАЯ ТАБЛИЦА:)', assistant_message)
+        # Разбиваем на сообщения по ~1500 символов по границам абзацев
+        paragraphs = assistant_message.split("\n\n")
         blocks = []
         current = ""
-        for section in sections:
-            if len(current) + len(section) + 1 > 4096:
+        for para in paragraphs:
+            if len(current) + len(para) + 2 > 1500:
                 if current:
                     blocks.append(current.strip())
-                current = section
+                current = para
             else:
-                current = (current + "\n" + section) if current else section
+                current = (current + "\n\n" + para) if current else para
         if current:
             blocks.append(current.strip())
 
