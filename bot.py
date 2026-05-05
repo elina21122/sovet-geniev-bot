@@ -160,7 +160,7 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
 
     try:
         response = client.chat.completions.create(
-            model="gpt-4o",
+            model="gpt-5.4-nano",
             messages=[
                 {"role": "system", "content": SYSTEM_PROMPT},
                 *user_histories[user_id]
