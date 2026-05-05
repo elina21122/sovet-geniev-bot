@@ -174,13 +174,23 @@ async def handle_message(update: Update, context: ContextTypes.DEFAULT_TYPE):
         # Добавляем ответ в историю
         user_histories[user_id].append({"role": "assistant", "content": assistant_message})
 
-        # Telegram ограничивает сообщения до 4096 символов — разбиваем если длиннее
-        if len(assistant_message) <= 4096:
-            await update.message.reply_text(assistant_message)
-        else:
-            chunks = [assistant_message[i:i+4096] for i in range(0, len(assistant_message), 4096)]
-            for chunk in chunks:
-                await update.message.reply_text(chunk)
+        # Разбиваем по смысловым блокам
+        import re
+        sections = re.split(r'\n(?=ВОПРОС НА РАССМОТРЕНИЕ:|ОТКРЫТИЕ:|ВИЗИОНЕР:|ИНВЕСТОР:|ПЕРФЕКЦИОНИСТ:|АНАЛИТИК:|КЛИЕНТ:|СТРАТЕГ:|СИНТЕЗ:|СВОДНАЯ ТАБЛИЦА:)', assistant_message)
+        blocks = []
+        current = ""
+        for section in sections:
+            if len(current) + len(section) + 1 > 4096:
+                if current:
+                    blocks.append(current.strip())
+                current = section
+            else:
+                current = (current + "\n" + section) if current else section
+        if current:
+            blocks.append(current.strip())
+
+        for block in blocks:
+            await update.message.reply_text(block)
 
     except Exception as e:
         logger.error(f"Ошибка OpenAI: {e}")
